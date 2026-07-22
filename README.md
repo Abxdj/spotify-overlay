@@ -2,7 +2,7 @@
 
 A floating, always-on-top Spotify controller for Windows, styled after the classic iPod. Shows live album art and track info, gives you playback controls, and renders a real-time audio visualizer driven by a system-audio FFT. Auto-hides when nothing's playing.
 
-![Spotify Overlay](screenshot.png)
+![Spotify Overlay](Screenshot.png)
 
 ## Features
 
