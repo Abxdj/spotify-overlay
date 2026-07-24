@@ -37,8 +37,6 @@ public partial class OverlayWindow : Window
             return;
         }
 
-        Hide(); // hide only AFTER auth succeeds
-
         _timer.Tick += async (_, _) => await Refresh();
         _timer.Start();
         await Refresh();
@@ -99,9 +97,7 @@ public partial class OverlayWindow : Window
             var playback = await _spotify.Player.GetCurrentPlayback();
             if (playback?.Item is FullTrack track)
             {
-                if (Visibility != Visibility.Visible) Show();
-
-                TrackName.Text  = track.Name;
+                TrackName.Text = track.Name;
                 ArtistName.Text = string.Join(", ", track.Artists.Select(a => a.Name));
 
                 if (track.Id != _lastTrackId)
@@ -114,11 +110,14 @@ public partial class OverlayWindow : Window
             }
             else
             {
-                // nothing playing / Spotify closed -> hide
-                if (Visibility == Visibility.Visible) Hide();
+                TrackName.Text = "Nothing playing";
+                ArtistName.Text = "";
             }
         }
-        catch { /* transient API hiccups — ignore, next tick retries */ }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.ToString(), "Refresh failed");
+        }
     }
 
     private async void Play_Click(object sender, RoutedEventArgs e)

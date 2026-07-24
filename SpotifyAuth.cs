@@ -8,7 +8,8 @@ namespace SpotifyOverlay;
 public static class SpotifyAuth
 {
     // ---- PUT YOUR CLIENT ID HERE ----
-    private const string ClientId = "f4e42bf1509a4bf58eeb2729149998fa";
+    private static readonly string ClientId = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_ID") ?? throw new InvalidOperationException(
+        "Set the SPOTIFY_CLIENT_ID environment variable to your Spotify app's Client ID.");
     private const int    CallbackPort = 5543;
     private static readonly Uri Callback = new($"http://127.0.0.1:{CallbackPort}/callback");
 
@@ -81,8 +82,16 @@ public static class SpotifyAuth
     private static PKCETokenResponse? LoadToken()
     {
         if (!File.Exists(TokenPath)) return null;
-        try { return JsonSerializer.Deserialize<PKCETokenResponse>(File.ReadAllText(TokenPath)); }
-        catch { return null; }
+        try
+        {
+            var token = JsonSerializer.Deserialize<PKCETokenResponse>(File.ReadAllText(TokenPath));
+            if (token == null || string.IsNullOrEmpty(token.RefreshToken)) return null;
+            return token;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     private static void SaveToken(PKCETokenResponse token)
